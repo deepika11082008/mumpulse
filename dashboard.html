@@ -1,31 +1,405 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Dashboard</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MomCare — Dashboard</title>
+<link rel="stylesheet" href="style.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+body {
+  background:linear-gradient(160deg,#f7f0ff 0%,#fde8f0 55%,#e8f0fd 100%);
+  min-height:100vh; padding:0;
+}
+
+/* ── NAV ── */
+.top-nav {
+  background:rgba(255,255,255,0.75); backdrop-filter:blur(18px);
+  border-bottom:1.5px solid rgba(201,184,232,0.35);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 40px; position:sticky; top:0; z-index:50;
+}
+.nav-brand { display:flex; align-items:center; gap:10px; }
+.nav-brand .logo { font-size:1.8rem; }
+.nav-brand h2 { font-size:1.3rem; color:var(--text-dark); letter-spacing:2px; }
+.nav-links { display:flex; gap:20px; }
+.nav-link {
+  font-size:0.82rem; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+  color:var(--text-mid); text-decoration:none; padding:8px 16px; border-radius:10px;
+  transition:all 0.25s; cursor:pointer;
+}
+.nav-link:hover, .nav-link.active { background:var(--blush); color:var(--text-dark); }
+
+/* ── MAIN ── */
+.dash-main { max-width:1100px; margin:0 auto; padding:40px 24px 60px; }
+
+/* ── HERO GREETING ── */
+.hero-greeting {
+  background:linear-gradient(135deg,rgba(164,141,207,0.18),rgba(245,198,208,0.18));
+  border-radius:28px; padding:36px 40px; margin-bottom:32px;
+  border:1.5px solid rgba(201,184,232,0.4);
+  display:flex; align-items:center; gap:32px; flex-wrap:wrap;
+  box-shadow:0 8px 32px var(--shadow);
+  background:rgba(255,255,255,0.7); backdrop-filter:blur(12px);
+}
+.hero-avatar {
+  width:90px; height:90px; border-radius:50%;
+  background:linear-gradient(135deg,var(--lavender-mid),var(--rose));
+  display:flex; align-items:center; justify-content:center;
+  font-size:3rem; box-shadow:0 6px 20px var(--shadow); flex-shrink:0;
+  animation:float 4s ease-in-out infinite;
+}
+.hero-text h1 { font-size:2.2rem; color:var(--text-dark); margin-bottom:6px; }
+.hero-text p { color:var(--text-mid); font-weight:700; font-size:0.95rem; line-height:1.6; }
+.hero-badges { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+.hero-badge {
+  padding:6px 16px; border-radius:50px; font-size:0.78rem; font-weight:800;
+  letter-spacing:1px; text-transform:uppercase;
+  background:rgba(255,255,255,0.8); border:1.5px solid rgba(201,184,232,0.5);
+  color:var(--text-mid);
+}
+.hero-badge.risk-low { background:#d4f0e8; border-color:#82c99a; color:#2d7a4f; }
+.hero-badge.risk-moderate { background:#fef9e7; border-color:#f5c842; color:#a87a00; }
+.hero-badge.risk-high { background:#fde8f0; border-color:#e89aaa; color:#c0394b; }
+
+/* ── STAT CARDS ── */
+.stats-row {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:32px;
+}
+@media(max-width:700px){ .stats-row{ grid-template-columns:1fr 1fr; } }
+.stat-card {
+  background:rgba(255,255,255,0.85); backdrop-filter:blur(10px);
+  border-radius:20px; padding:24px 20px; text-align:center;
+  box-shadow:0 4px 16px var(--shadow); border:1.5px solid rgba(201,184,232,0.35);
+  transition:transform 0.25s;
+}
+.stat-card:hover { transform:translateY(-4px); }
+.stat-icon { font-size:2rem; margin-bottom:8px; display:block; }
+.stat-value { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:700; color:var(--text-dark); }
+.stat-label { font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text-light); margin-top:4px; }
+
+/* ── GRID ── */
+.dash-grid {
+  display:grid; grid-template-columns:1.3fr 1fr; gap:24px; margin-bottom:24px;
+}
+@media(max-width:750px){ .dash-grid{ grid-template-columns:1fr; } }
+
+/* ── PANEL ── */
+.panel {
+  background:rgba(255,255,255,0.85); backdrop-filter:blur(12px);
+  border-radius:24px; padding:28px; box-shadow:0 6px 24px var(--shadow);
+  border:1.5px solid rgba(201,184,232,0.4);
+}
+.panel h3 { font-size:1.15rem; color:var(--text-dark); margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+
+/* ── VOICE NOTES ── */
+.voice-note-item {
+  display:flex; align-items:center; gap:14px;
+  background:var(--blush); border-radius:14px; padding:12px 16px; margin-bottom:12px;
+}
+.vn-day { font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text-light); min-width:44px; }
+.vn-bar { flex:1; height:6px; border-radius:10px; background:linear-gradient(90deg,var(--lavender-deep),var(--rose-deep)); }
+.vn-duration { font-size:0.8rem; font-weight:800; color:var(--text-mid); min-width:40px; text-align:right; }
+.vn-play { width:34px; height:34px; border-radius:50%; border:none; background:var(--lavender-deep); color:white; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.25s; }
+.vn-play:hover { background:var(--rose-deep); transform:scale(1.1); }
+
+/* ── Q ANSWERS ── */
+.q-answer-item {
+  padding:10px 14px; border-radius:12px; background:rgba(248,244,255,0.7);
+  border:1.5px solid rgba(201,184,232,0.35); margin-bottom:8px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.qa-label { font-size:0.8rem; font-weight:700; color:var(--text-mid); }
+.qa-dots { display:flex; gap:4px; }
+.qa-dot { width:10px; height:10px; border-radius:50%; background:rgba(201,184,232,0.4); }
+.qa-dot.filled { background:linear-gradient(135deg,var(--lavender-deep),var(--rose-deep)); }
+
+/* ── CHART ── */
+.chart-wrap { position:relative; height:220px; }
+
+/* ── AFFIRMATION ── */
+.affirmation-card {
+  background:linear-gradient(135deg,var(--lavender-deep),var(--rose-deep));
+  border-radius:24px; padding:28px 32px; color:white; margin-bottom:24px;
+  text-align:center; box-shadow:0 8px 24px rgba(164,141,207,0.35);
+  position:relative; overflow:hidden;
+}
+.affirmation-card::before {
+  content:'✨'; position:absolute; font-size:6rem; right:-10px; top:-10px; opacity:0.12;
+}
+.affirmation-card .aff-title { font-size:0.78rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; opacity:0.8; margin-bottom:10px; }
+.affirmation-card .aff-text { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:600; line-height:1.4; }
+.affirmation-card .aff-btn {
+  margin-top:16px; padding:8px 22px; border-radius:50px;
+  background:rgba(255,255,255,0.2); border:1.5px solid rgba(255,255,255,0.4);
+  color:white; font-family:'Nunito',sans-serif; font-size:0.82rem; font-weight:800;
+  letter-spacing:1px; cursor:pointer; transition:all 0.3s;
+}
+.affirmation-card .aff-btn:hover { background:rgba(255,255,255,0.35); }
+
+/* ── QUICK ACTIONS ── */
+.quick-actions { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:32px; }
+.qa-btn {
+  flex:1; min-width:150px; padding:16px 20px; border-radius:18px;
+  background:rgba(255,255,255,0.85); backdrop-filter:blur(10px);
+  border:1.5px solid rgba(201,184,232,0.4); cursor:pointer;
+  font-family:'Nunito',sans-serif; text-align:center; transition:all 0.3s;
+  box-shadow:0 4px 14px var(--shadow);
+}
+.qa-btn:hover { transform:translateY(-4px); background:var(--blush); }
+.qa-btn .qa-icon { font-size:1.8rem; display:block; margin-bottom:6px; }
+.qa-btn .qa-text { font-size:0.78rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text-mid); }
+
+#petals { position:fixed; inset:0; pointer-events:none; z-index:0; }
+.dash-main, .top-nav { position:relative; z-index:1; }
+</style>
 </head>
-
 <body>
+<div id="petals"></div>
 
-<h1>Mother Mental Health Dashboard</h1>
+<!-- NAV -->
+<nav class="top-nav">
+  <div class="nav-brand">
+    <span class="logo">🌸</span>
+    <h2>MomCare</h2>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link active">Dashboard</a>
+    <a class="nav-link" onclick="window.location.href='screening.html'">Journal</a>
+    <a class="nav-link" onclick="window.location.href='chatbot.html'">Chatbot</a>
+    <a class="nav-link" onclick="window.location.href='result.html'">Results</a>
+  </div>
+</nav>
 
-<table>
+<!-- MAIN -->
+<div class="dash-main">
 
-<tr>
-<th>Name</th>
-<th>Weeks After Delivery</th>
-<th>Risk Level</th>
-</tr>
+  <!-- GREETING -->
+  <div class="hero-greeting">
+    <div class="hero-avatar">🤱</div>
+    <div class="hero-text">
+      <h1 id="greetingText">Good Morning, Mama!</h1>
+      <p id="greetingSub">Here's a gentle overview of your wellbeing journey. You are seen, valued, and deeply loved.</p>
+      <div class="hero-badges">
+        <div class="hero-badge" id="weeksBadge">Week 1 Postpartum</div>
+        <div class="hero-badge" id="riskBadge">Risk: Unknown</div>
+        <div class="hero-badge" id="dobBadge">DOB: —</div>
+      </div>
+    </div>
+  </div>
 
-<tr>
-<td id="dName"></td>
-<td id="dWeeks"></td>
-<td id="dRisk"></td>
-</tr>
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-icon">🎙️</span>
+      <div class="stat-value" id="voiceDaysCount">0</div>
+      <div class="stat-label">Days Recorded</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">📋</span>
+      <div class="stat-value" id="questScore">—</div>
+      <div class="stat-label">Questionnaire Score</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">💜</span>
+      <div class="stat-value" id="streakCount">5</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">🌸</span>
+      <div class="stat-value">100%</div>
+      <div class="stat-label">Commitment</div>
+    </div>
+  </div>
 
-</table>
+  <!-- AFFIRMATION -->
+  <div class="affirmation-card">
+    <div class="aff-title">✨ Today's Affirmation</div>
+    <div class="aff-text" id="affText">"You are enough. You have always been enough. Your love is your baby's whole world."</div>
+    <button class="aff-btn" onclick="newAffirmation()">🔄 New Affirmation</button>
+  </div>
 
+  <!-- QUICK ACTIONS -->
+  <div class="quick-actions">
+    <button class="qa-btn" onclick="window.location.href='chatbot.html'">
+      <span class="qa-icon">💬</span><div class="qa-text">Talk to Chatbot</div>
+    </button>
+    <button class="qa-btn" onclick="window.location.href='screening.html'">
+      <span class="qa-icon">🎙️</span><div class="qa-text">Voice Journal</div>
+    </button>
+    <button class="qa-btn" onclick="window.location.href='result.html'">
+      <span class="qa-icon">📊</span><div class="qa-text">View Results</div>
+    </button>
+    <button class="qa-btn">
+      <span class="qa-icon">📞</span><div class="qa-text">Support Line</div>
+    </button>
+  </div>
+
+  <!-- GRID -->
+  <div class="dash-grid">
+    <!-- Voice notes -->
+    <div class="panel">
+      <h3>🎙️ Voice Journal — All Recordings</h3>
+      <div id="voiceNotesList">
+        <p style="color:var(--text-light);font-weight:700;font-size:0.9rem;">No recordings yet.</p>
+      </div>
+    </div>
+
+    <!-- Questionnaire answers -->
+    <div class="panel">
+      <h3>📋 Questionnaire Snapshot</h3>
+      <div id="qaSnapshot">
+        <p style="color:var(--text-light);font-weight:700;font-size:0.9rem;">Complete the questionnaire to see your answers.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="panel" style="margin-bottom:24px;">
+    <h3>📈 Wellbeing Score Overview</h3>
+    <div class="chart-wrap">
+      <canvas id="wellbeingChart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Petals
+const petalColors=['#e0c8f5','#f5c6d0','#c8e0f5','#f5e0c8'];
+const pc=document.getElementById('petals');
+for(let i=0;i<14;i++){const p=document.createElement('div');p.className='petal';p.style.cssText=`left:${Math.random()*100}vw;background:${petalColors[Math.floor(Math.random()*petalColors.length)]};width:${8+Math.random()*8}px;height:${12+Math.random()*10}px;animation-duration:${7+Math.random()*9}s;animation-delay:${Math.random()*8}s;`;pc.appendChild(p);}
+
+// Load data
+const name = localStorage.getItem('mom_name') || 'Mama';
+const dob = localStorage.getItem('mom_dob') || '';
+const weeks = localStorage.getItem('mom_weeks') || '1';
+const score = localStorage.getItem('q_score');
+const answers = JSON.parse(localStorage.getItem('q_answers') || '{}');
+const completedDays = JSON.parse(localStorage.getItem('completed_days') || '[]');
+const recordings = JSON.parse(localStorage.getItem('voice_recordings') || '{}');
+
+// Greeting
+const hour = new Date().getHours();
+const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+document.getElementById('greetingText').textContent = `${greeting}, ${name}! 🌸`;
+document.getElementById('greetingSub').textContent = `Here's your gentle wellbeing overview. You've been on this journey for ${weeks} weeks — keep going, mama.`;
+
+document.getElementById('weeksBadge').textContent = `Week ${weeks} Postpartum`;
+if (dob) document.getElementById('dobBadge').textContent = `Born: ${new Date(dob).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}`;
+
+// Risk badge
+if (score !== null) {
+  const s = parseInt(score);
+  document.getElementById('questScore').textContent = `${s}/15`;
+  const level = s>=11?'low':s>=6?'moderate':'high';
+  const rb = document.getElementById('riskBadge');
+  rb.textContent = `Risk: ${level.toUpperCase()}`;
+  rb.className = `hero-badge risk-${level}`;
+}
+
+document.getElementById('voiceDaysCount').textContent = completedDays.length;
+document.getElementById('streakCount').textContent = completedDays.length;
+
+// Voice notes
+const vnList = document.getElementById('voiceNotesList');
+if (Object.keys(recordings).length > 0) {
+  vnList.innerHTML = '';
+  for (let d = 1; d <= 5; d++) {
+    const key = `day${d}`;
+    const rec = recordings[key];
+    const done = completedDays.includes(d);
+    vnList.innerHTML += `
+      <div class="voice-note-item">
+        <span class="vn-day">Day ${d}</span>
+        <div class="vn-bar" style="width:${done?'100%':'30%'};opacity:${done?1:0.4}"></div>
+        <span class="vn-duration">${rec ? rec.duration : done ? '01:00' : '—'}</span>
+        <button class="vn-play" title="Play">${done?'▶':'○'}</button>
+      </div>
+    `;
+  }
+} else if (completedDays.length > 0) {
+  vnList.innerHTML = '';
+  for (let d = 1; d <= 5; d++) {
+    const done = completedDays.includes(d);
+    vnList.innerHTML += `
+      <div class="voice-note-item">
+        <span class="vn-day">Day ${d}</span>
+        <div class="vn-bar" style="width:${done?'100%':'30%'};opacity:${done?1:0.4}"></div>
+        <span class="vn-duration">${done?'Recorded':'—'}</span>
+        <button class="vn-play">${done?'▶':'○'}</button>
+      </div>
+    `;
+  }
+}
+
+// Q answers snapshot
+const qaSnap = document.getElementById('qaSnapshot');
+const qLabels = ['Calm/Happy','Supported','Openness','Self-care','Baby Bond'];
+if (Object.keys(answers).length === 5) {
+  qaSnap.innerHTML = '';
+  qLabels.forEach((label, qi) => {
+    const val = answers[qi] !== undefined ? 3 - answers[qi] : 0;
+    const dots = [0,1,2,3].map(i => `<div class="qa-dot ${i<val?'filled':''}"></div>`).join('');
+    qaSnap.innerHTML += `
+      <div class="q-answer-item">
+        <span class="qa-label">${label}</span>
+        <div class="qa-dots">${dots}</div>
+      </div>
+    `;
+  });
+}
+
+// Wellbeing chart
+const wCtx = document.getElementById('wellbeingChart').getContext('2d');
+const scoreVal = score ? parseInt(score) : 0;
+const dayScores = completedDays.length > 0
+  ? completedDays.map((d,i) => Math.round(5 + Math.random() * 7 + i))
+  : [0];
+const labels = completedDays.length > 0 ? completedDays.map(d=>`Day ${d}`) : ['Day 1'];
+if (score) { labels.push('Day 6 (Q)'); dayScores.push(scoreVal); }
+
+new Chart(wCtx, {
+  type:'line',
+  data:{
+    labels,
+    datasets:[{
+      label:'Wellbeing Score',
+      data:dayScores,
+      fill:true,
+      backgroundColor:'rgba(164,141,207,0.12)',
+      borderColor:'#a48dcf',
+      pointBackgroundColor:'#e89aaa',
+      pointRadius:6, borderWidth:2.5,
+      tension:0.4
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      y:{min:0,max:15,grid:{color:'rgba(164,141,207,0.15)'},ticks:{font:{family:'Nunito',weight:'700'},color:'#9b85b8'}},
+      x:{grid:{color:'rgba(164,141,207,0.1)'},ticks:{font:{family:'Nunito',weight:'700'},color:'#9b85b8'}}
+    },
+    animation:{duration:1600}
+  }
+});
+
+// Affirmations
+const affirmations = [
+  '"You are enough. You have always been enough. Your love is your baby\'s whole world."',
+  '"Rest is not a reward — it is part of healing. You deserve to rest."',
+  '"Every moment of doubt you overcome makes you stronger than you know."',
+  '"Your baby chose you. And they chose perfectly."',
+  '"Asking for help is not weakness — it is wisdom and courage."',
+  '"You are growing into the mother your child needs, one day at a time."',
+  '"Your feelings are valid. All of them. Even the hard ones."',
+];
+let affIndex = 0;
+function newAffirmation() {
+  affIndex = (affIndex+1) % affirmations.length;
+  document.getElementById('affText').textContent = affirmations[affIndex];
+}
+</script>
 </body>
-
-<script src="script.js"></script>
 </html>
