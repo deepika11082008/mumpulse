@@ -1,24 +1,248 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>PPD Result</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MomCare — Your Results</title>
+<link rel="stylesheet" href="style.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+body {
+  background: linear-gradient(160deg,#f7f0ff 0%,#fde8f0 55%,#e8f0fd 100%);
+  min-height:100vh; padding:40px 20px;
+}
+.result-wrap { max-width:860px; margin:0 auto; }
+
+.result-header { text-align:center; margin-bottom:40px; }
+.result-header .mama-name {
+  font-size:0.88rem; font-weight:800; letter-spacing:2px; text-transform:uppercase;
+  color:var(--text-light); margin-bottom:8px;
+}
+.result-header h1 { font-size:2.6rem; color:var(--text-dark); margin-bottom:8px; }
+.result-header p { color:var(--text-mid); font-weight:700; }
+
+/* ── RISK CARD ── */
+.risk-card {
+  border-radius:28px; padding:40px 36px; text-align:center; margin-bottom:32px;
+  position:relative; overflow:hidden; box-shadow:0 12px 40px var(--shadow);
+}
+.risk-card.low { background:linear-gradient(135deg,#d4f0e8,#a8e6c0,#f0fdf4); border:2px solid #82c99a; }
+.risk-card.moderate { background:linear-gradient(135deg,#fef9e7,#fde68a,#fff8d6); border:2px solid #f5c842; }
+.risk-card.high { background:linear-gradient(135deg,#fde8f0,#fca5a5,#fff0f0); border:2px solid #e89aaa; }
+
+.risk-icon { font-size:5rem; display:block; margin-bottom:12px; animation:float 3s ease-in-out infinite; }
+.risk-label {
+  font-family:'Cormorant Garamond',serif; font-size:3.5rem; font-weight:700;
+  letter-spacing:4px; text-transform:uppercase; margin-bottom:8px;
+}
+.risk-card.low .risk-label { color:#2d7a4f; }
+.risk-card.moderate .risk-label { color:#a87a00; }
+.risk-card.high .risk-label { color:#c0394b; }
+
+.risk-desc { font-size:1rem; font-weight:700; line-height:1.7; max-width:480px; margin:0 auto; }
+.risk-card.low .risk-desc { color:#2d7a4f; }
+.risk-card.moderate .risk-desc { color:#7a5800; }
+.risk-card.high .risk-desc { color:#8b1a2b; }
+
+.score-badge {
+  display:inline-block; margin-top:20px; padding:8px 24px;
+  background:rgba(255,255,255,0.65); border-radius:50px;
+  font-weight:800; font-size:0.9rem; letter-spacing:1px;
+}
+
+/* ── CHARTS ── */
+.charts-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:32px;
+}
+@media(max-width:600px){ .charts-row{ grid-template-columns:1fr; } }
+
+.chart-card {
+  background:rgba(255,255,255,0.85); backdrop-filter:blur(12px);
+  border-radius:24px; padding:28px; box-shadow:0 6px 24px var(--shadow);
+  border:1.5px solid rgba(201,184,232,0.4);
+}
+.chart-card h3 { font-size:1.1rem; color:var(--text-dark); margin-bottom:16px; text-align:center; }
+
+/* ── RECOMMENDATIONS ── */
+.reco-section {
+  background:rgba(255,255,255,0.85); backdrop-filter:blur(12px);
+  border-radius:24px; padding:32px 36px; box-shadow:0 6px 24px var(--shadow);
+  border:1.5px solid rgba(201,184,232,0.4); margin-bottom:32px;
+}
+.reco-section h3 { font-size:1.4rem; color:var(--text-dark); margin-bottom:20px; }
+.reco-list { display:flex; flex-direction:column; gap:12px; }
+.reco-item {
+  display:flex; align-items:flex-start; gap:14px;
+  background:var(--blush); border-radius:14px; padding:14px 18px;
+}
+.reco-icon { font-size:1.5rem; flex-shrink:0; }
+.reco-text { font-size:0.9rem; font-weight:700; color:var(--text-mid); line-height:1.5; }
+
+.action-btns {
+  display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:36px;
+}
+.btn-outline {
+  padding:14px 32px; border-radius:50px; border:2.5px solid var(--lavender-deep);
+  background:transparent; font-family:'Nunito',sans-serif; font-size:0.95rem;
+  font-weight:800; color:var(--lavender-deep); cursor:pointer; letter-spacing:1px;
+  text-transform:uppercase; transition:all 0.3s;
+}
+.btn-outline:hover { background:var(--lavender-deep); color:white; }
+
+#petals { position:fixed; inset:0; pointer-events:none; z-index:0; }
+.result-wrap { position:relative; z-index:1; }
+</style>
 </head>
-
 <body>
+<div id="petals"></div>
+<div class="result-wrap">
 
-<h1>Your PPD Risk Result</h1>
+  <div class="result-header">
+    <div class="mama-name" id="mamaNameTag">Your Results</div>
+    <h1>Your Wellbeing Report</h1>
+    <p>Based on your voice journal & questionnaire responses</p>
+  </div>
 
-<div class="result-box">
+  <!-- RISK CARD -->
+  <div class="risk-card" id="riskCard">
+    <span class="risk-icon" id="riskIcon">💚</span>
+    <div class="risk-label" id="riskLabel">LOW</div>
+    <p class="risk-desc" id="riskDesc">You're doing wonderfully, mama. Your emotional wellbeing looks strong.</p>
+    <div class="score-badge" id="scoreBadge">Score: 0 / 15</div>
+  </div>
 
-<h2 id="riskLevel"></h2>
-<p id="message"></p>
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>📊 Wellbeing Score Gauge</h3>
+      <canvas id="gaugeChart" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>🌸 Response Breakdown</h3>
+      <canvas id="breakdownChart" height="200"></canvas>
+    </div>
+  </div>
 
-<a href="dashboard.html">View Dashboard</a>
+  <!-- RECOMMENDATIONS -->
+  <div class="reco-section">
+    <h3>🌷 Personalised Recommendations</h3>
+    <div class="reco-list" id="recoList"></div>
+  </div>
 
+  <div class="action-btns">
+    <button class="btn-primary" onclick="window.location.href='dashboard.html'">Go to My Dashboard →</button>
+    <button class="btn-outline" onclick="window.location.href='chatbot.html'">💬 Talk to Chatbot</button>
+  </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+// Petals
+const petalColors=['#e0c8f5','#f5c6d0','#c8e0f5','#f5e0c8'];
+const pc=document.getElementById('petals');
+for(let i=0;i<14;i++){const p=document.createElement('div');p.className='petal';p.style.cssText=`left:${Math.random()*100}vw;background:${petalColors[Math.floor(Math.random()*petalColors.length)]};width:${8+Math.random()*8}px;height:${12+Math.random()*10}px;animation-duration:${7+Math.random()*9}s;animation-delay:${Math.random()*8}s;`;pc.appendChild(p);}
 
+const score = parseInt(localStorage.getItem('q_score') || '8');
+const answers = JSON.parse(localStorage.getItem('q_answers') || '{}');
+const name = localStorage.getItem('mom_name') || 'Mama';
+
+document.getElementById('mamaNameTag').textContent = `Results for ${name}`;
+document.getElementById('scoreBadge').textContent = `Score: ${score} / 15`;
+
+let riskLevel, icon, desc, recs;
+if (score >= 11) {
+  riskLevel='low'; icon='💚'; desc='You\'re showing strong emotional resilience. Your responses reflect moments of calm, connection, and care. Keep nurturing yourself, mama — you\'re doing beautifully.';
+  recs = [
+    {icon:'🧘‍♀️', text:'Continue your daily mindfulness routine — even 5 minutes of deep breathing makes a difference.'},
+    {icon:'🌸', text:'Share your positive experiences with loved ones — connection amplifies joy.'},
+    {icon:'📖', text:'Consider journaling your happy moments to revisit them on harder days.'}
+  ];
+} else if (score >= 6) {
+  riskLevel='moderate'; icon='💛'; desc='You\'re doing okay, but some areas may need extra attention. It\'s okay to ask for more support — you deserve care too.';
+  recs = [
+    {icon:'💬', text:'Consider speaking with a trusted friend, family member, or counsellor about your feelings.'},
+    {icon:'🛁', text:'Carve out at least 15 minutes daily just for yourself — a bath, a walk, or quiet time.'},
+    {icon:'👶', text:'Try a gentle bonding activity with your baby each day — skin-to-skin or soft singing.'},
+    {icon:'🍃', text:'Limit social media and focus on real connections around you.'}
+  ];
+} else {
+  riskLevel='high'; icon='❤️'; desc='You may be experiencing some emotional challenges right now. This is more common than you know — please reach out for professional support. You are not alone, and help is available.';
+  recs = [
+    {icon:'🏥', text:'Please speak to your doctor or midwife about how you\'ve been feeling — they are there to help.'},
+    {icon:'📞', text:'Reach out to a postpartum support helpline or counsellor as soon as possible.'},
+    {icon:'🤝', text:'Let someone close to you know you need more support right now — you don\'t have to carry this alone.'},
+    {icon:'💊', text:'If prescribed, take any medications consistently and follow your care plan.'},
+    {icon:'🌙', text:'Prioritise sleep as much as possible — even short rest periods help restore your mind.'}
+  ];
+}
+
+const rc = document.getElementById('riskCard');
+rc.className = `risk-card ${riskLevel}`;
+document.getElementById('riskIcon').textContent = icon;
+document.getElementById('riskLabel').textContent = riskLevel.toUpperCase();
+document.getElementById('riskDesc').textContent = desc;
+
+const recoList = document.getElementById('recoList');
+recs.forEach(r=>{
+  recoList.innerHTML += `<div class="reco-item"><span class="reco-icon">${r.icon}</span><div class="reco-text">${r.text}</div></div>`;
+});
+
+// Gauge chart
+const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+new Chart(gaugeCtx, {
+  type:'doughnut',
+  data:{
+    datasets:[{
+      data:[score, 15-score],
+      backgroundColor: [
+        riskLevel==='low'?'#82c99a':riskLevel==='moderate'?'#f5c842':'#e89aaa',
+        'rgba(232,224,245,0.3)'
+      ],
+      borderWidth:0, borderRadius:8
+    }]
+  },
+  options:{
+    cutout:'72%', rotation:-90, circumference:180,
+    plugins:{legend:{display:false}, tooltip:{enabled:false}},
+    animation:{duration:1400, easing:'easeOutBounce'}
+  },
+  plugins:[{
+    id:'centerText',
+    afterDraw(chart){
+      const {ctx,chartArea:{top,width,height}}=chart;
+      ctx.save();
+      ctx.font='bold 22px Cormorant Garamond';
+      ctx.fillStyle='#3d2b5e';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText(`${score}/15`, width/2+chart.chartArea.left, top+height*0.72);
+      ctx.restore();
+    }
+  }]
+});
+
+// Breakdown radar
+const qLabels = ['Calm','Support','Openness','Self-care','Bond'];
+const qScores = [0,1,2,3,4].map(i=> answers[i] !== undefined ? 3-answers[i] : 2);
+const breakCtx = document.getElementById('breakdownChart').getContext('2d');
+new Chart(breakCtx, {
+  type:'radar',
+  data:{
+    labels:qLabels,
+    datasets:[{
+      label:'Your Scores',
+      data:qScores,
+      backgroundColor:'rgba(164,141,207,0.22)',
+      borderColor:'#a48dcf',
+      pointBackgroundColor:'#e89aaa',
+      pointRadius:5, borderWidth:2.5
+    }]
+  },
+  options:{
+    scales:{r:{min:0,max:3,ticks:{display:false},grid:{color:'rgba(164,141,207,0.25)'},pointLabels:{font:{family:'Nunito',weight:'700',size:11},color:'#6b5585'}}},
+    plugins:{legend:{display:false}},
+    animation:{duration:1400}
+  }
+});
+</script>
 </body>
 </html>
