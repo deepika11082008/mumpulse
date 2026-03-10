@@ -1,95 +1,133 @@
-// Login form submit
+// LOGIN PAGE
+document.getElementById("loginForm")?.addEventListener("submit", function(e){
 
-document.getElementById("loginForm")?.addEventListener("submit", function(e) {
+e.preventDefault();
 
-    e.preventDefault();
+let name = document.getElementById("name").value;
+let weeks = document.getElementById("weeks").value;
 
-    let name = document.getElementById("name").value;
+localStorage.setItem("name", name);
+localStorage.setItem("weeks", weeks);
 
-    let dob = document.getElementById("dob").value;
-
-    localStorage.setItem("name", name);
-
-    localStorage.setItem("dob", dob);
-
-    window.location.href = "screening.html";
+window.location = "screening.html";
 
 });
 
-// Screening form submit
 
-document.getElementById("screeningForm")?.addEventListener("submit",function(e){
+// VOICE QUESTIONS
+let questions = [
+"What is your name?",
+"How is your life going?",
+"How is your baby health?",
+"How are you feeling emotionally today?",
+"Are you feeling stressed or tired?"
+];
 
-e.preventDefault()
+function startDay(day){
 
-let mood=document.getElementById("mood").value
-let text=document.getElementById("text").value
+let q = questions[Math.floor(Math.random()*questions.length)];
 
-let risk="Low"
+let questionElement = document.getElementById("question");
 
-if(mood=="sad" || text.includes("sad"))
-risk="Moderate"
-
-if(text.includes("hopeless") || text.includes("depressed"))
-risk="High"
-
-localStorage.setItem("risk",risk)
-
-window.location.href="result.html"
-
-})
-
-
-// Prefill name in screening
-
-if (document.getElementById("name")) {
-
-    let name = localStorage.getItem("name");
-
-    if (name) document.getElementById("name").value = name;
+if(questionElement){
+questionElement.innerText = "Day " + day + " Question: " + q;
+}
 
 }
 
 
-// show result
+// VOICE RECORDING
+function recordVoice(){
 
+alert("Voice recording started (demo)");
+
+}
+
+
+// QUESTIONNAIRE SUBMIT
+document.getElementById("questionnaire")?.addEventListener("submit", function(e){
+
+e.preventDefault();
+
+let text =
+(document.getElementById("q1")?.value || "") +
+(document.getElementById("q2")?.value || "");
+
+let risk = "Low";
+
+if(text.toLowerCase().includes("sad") || text.toLowerCase().includes("tired"))
+risk = "Moderate";
+
+if(text.toLowerCase().includes("hopeless") || text.toLowerCase().includes("depressed"))
+risk = "High";
+
+localStorage.setItem("risk", risk);
+
+window.location = "result.html";
+
+});
+
+
+// RESULT PAGE
 if(document.getElementById("riskLevel")){
 
-let risk=localStorage.getItem("risk")
+let risk = localStorage.getItem("risk") || "Low";
 
-document.getElementById("riskLevel").innerText="Risk Level: "+risk
+document.getElementById("riskLevel").innerText = "Risk Level: " + risk;
 
-let guidance = "";
+let msg = "You are emotionally stable.";
 
-if (risk === "Low") guidance = "You seem to be doing well. Continue monitoring your mood.";
+if(risk === "Moderate")
+msg = "You may be experiencing emotional stress.";
 
-else if (risk === "Moderate") guidance = "Consider talking to a friend or professional.";
+if(risk === "High")
+msg = "Please consult a healthcare professional.";
 
-else guidance = "Please seek immediate help from a healthcare provider.";
-
-document.getElementById("guidance").innerText = guidance;
+document.getElementById("message").innerText = msg;
 
 }
 
 
-// chatbot
+// DASHBOARD
+if(document.getElementById("dName")){
 
+document.getElementById("dName").innerText = localStorage.getItem("name");
+document.getElementById("dWeeks").innerText = localStorage.getItem("weeks");
+document.getElementById("dRisk").innerText = localStorage.getItem("risk");
+
+}
+
+
+// CHATBOT
 function sendMessage(){
 
-let message=document.getElementById("message").value
+let msgInput = document.getElementById("message");
+let box = document.getElementById("chatbox");
 
-let chatbox=document.getElementById("chatbox")
+if(!msgInput || !box) return;
 
-chatbox.innerHTML+="<p>You: "+message+"</p>"
+let msg = msgInput.value;
 
-let reply="I'm here to support you."
+box.innerHTML += "<p><b>You:</b> " + msg + "</p>";
 
-if(message.includes("sad"))
-reply="I'm sorry you're feeling sad. Talking to someone may help."
+let reply = "I'm here to support you.";
 
-if(message.includes("stress"))
-reply="Try taking some deep breaths and resting."
+if(msg.toLowerCase().includes("sad"))
+reply = "It's okay to feel sad. Try talking to someone you trust.";
 
-chatbox.innerHTML+="<p>Bot: "+reply+"</p>"
+if(msg.toLowerCase().includes("stress"))
+reply = "Take some rest and breathing exercises.";
+
+box.innerHTML += "<p><b>Bot:</b> " + reply + "</p>";
+
+msgInput.value = "";
+
+}
+
+
+// VOICE CHAT
+function voiceChat(){
+
+alert("Voice chatbot activated (demo)");
 
 }
