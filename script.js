@@ -1,3 +1,21 @@
+// Login form submit
+
+document.getElementById("loginForm")?.addEventListener("submit", function(e) {
+
+    e.preventDefault();
+
+    let name = document.getElementById("name").value;
+
+    let dob = document.getElementById("dob").value;
+
+    localStorage.setItem("name", name);
+
+    localStorage.setItem("dob", dob);
+
+    window.location.href = "screening.html";
+
+});
+
 // Screening form submit
 
 document.getElementById("screeningForm")?.addEventListener("submit",function(e){
@@ -22,6 +40,17 @@ window.location.href="result.html"
 })
 
 
+// Prefill name in screening
+
+if (document.getElementById("name")) {
+
+    let name = localStorage.getItem("name");
+
+    if (name) document.getElementById("name").value = name;
+
+}
+
+
 // show result
 
 if(document.getElementById("riskLevel")){
@@ -29,6 +58,16 @@ if(document.getElementById("riskLevel")){
 let risk=localStorage.getItem("risk")
 
 document.getElementById("riskLevel").innerText="Risk Level: "+risk
+
+let guidance = "";
+
+if (risk === "Low") guidance = "You seem to be doing well. Continue monitoring your mood.";
+
+else if (risk === "Moderate") guidance = "Consider talking to a friend or professional.";
+
+else guidance = "Please seek immediate help from a healthcare provider.";
+
+document.getElementById("guidance").innerText = guidance;
 
 }
 
