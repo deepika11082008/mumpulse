@@ -1,121 +1,75 @@
 body{
-
-font-family:Arial;
-margin:0;
+font-family: Arial;
 background:#f4f6ff;
-
+margin:0;
+text-align:center;
 }
 
 header{
-
 background:#6c63ff;
 color:white;
 padding:20px;
-text-align:center;
-
 }
 
-nav a{
-
-color:white;
-margin:10px;
-text-decoration:none;
-
-}
-
-.hero{
-
-text-align:center;
-padding:80px;
-
-}
-
-.btn{
-
-background:#6c63ff;
-color:white;
-padding:12px 20px;
-border-radius:5px;
-text-decoration:none;
-
-}
-
-.container{
-
-width:90%;
-max-width:500px;
+.login-container{
+background:white;
+width:300px;
 margin:auto;
+padding:30px;
 margin-top:40px;
-
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-input,select,textarea{
-
-width:100%;
+input, textarea{
+width:90%;
 padding:10px;
-margin:10px 0;
-
+margin:10px;
 }
 
 button{
-
+padding:10px 15px;
 background:#6c63ff;
 color:white;
-padding:10px;
 border:none;
 border-radius:5px;
+cursor:pointer;
+}
 
+.days button{
+margin:10px;
 }
 
 .result-box{
-
-text-align:center;
-margin-top:50px;
-
+margin-top:40px;
 }
 
 table{
-
-width:80%;
 margin:auto;
 border-collapse:collapse;
-
+width:60%;
 }
 
-td,th{
-
+td, th{
 border:1px solid #ddd;
 padding:10px;
-
 }
 
 .chat-container{
-
 width:300px;
 margin:auto;
-
 }
 
 #chatbox{
-
 height:200px;
 border:1px solid #ccc;
 overflow:auto;
 margin-bottom:10px;
-
+padding:5px;
 }
-
-/* Mobile Responsive */
 
 @media(max-width:600px){
-
-.hero{
-padding:40px;
+table{
+width:90%;
 }
-
-nav{
-display:flex;
-flex-direction:column;
-}
-
 }
