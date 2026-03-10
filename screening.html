@@ -1,55 +1,560 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>PPD Screening</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MomCare — Screening</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+body { background: linear-gradient(160deg,#f7f0ff 0%,#fde8f0 60%,#e8f0fd 100%); min-height:100vh; }
+
+/* ── BALLOON WELCOME ── */
+#welcomeScreen {
+  position: fixed; inset: 0; z-index: 100;
+  background: linear-gradient(160deg,#f7f0ff,#fde8f0);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.8s ease;
+}
+#welcomeScreen.hide { opacity:0; pointer-events:none; }
+
+.balloon-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  animation: balloonRise 3.2s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+}
+@keyframes balloonRise {
+  0%   { transform: translateY(80px); opacity:0; }
+  30%  { opacity:1; }
+  70%  { transform: translateY(-20px); opacity:1; }
+  100% { transform: translateY(-120px); opacity:0; }
+}
+.balloon-emoji { font-size: 5rem; filter: drop-shadow(0 8px 16px rgba(164,141,207,0.4)); }
+.balloon-string { width:2px; height:60px; background:linear-gradient(to bottom,var(--lavender-deep),transparent); margin:0 auto; }
+.welcome-text {
+  font-family:'Cormorant Garamond',serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-align: center;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 20px;
+  line-height: 1.2;
+}
+.welcome-text span { color: var(--lavender-deep); }
+.welcome-sub { font-size:1rem; color:var(--text-light); font-weight:700; margin-top:8px; }
+
+/* ── MAIN CONTENT ── */
+#mainContent { display:none; padding:40px 20px; max-width:900px; margin:0 auto; }
+#mainContent.show { display:block; }
+
+.page-header {
+  text-align:center; margin-bottom:40px;
+}
+.page-header h2 { font-size:2rem; color:var(--text-dark); margin-bottom:8px; }
+.page-header p { color:var(--text-mid); font-weight:700; font-size:0.92rem; }
+
+/* ── GIRL WITH MIC ── */
+.mic-girl-section {
+  display:flex; align-items:center; justify-content:center; gap:28px;
+  margin-bottom:40px; flex-wrap:wrap;
+}
+.girl-figure {
+  display:flex; flex-direction:column; align-items:center;
+  position:relative;
+}
+.girl-svg {
+  width:100px; height:130px;
+  filter: drop-shadow(0 6px 18px rgba(164,141,207,0.3));
+  animation: float 3.5s ease-in-out infinite;
+}
+.mic-icon { font-size:2.2rem; margin-top:-12px; }
+
+/* ── DAY TIMELINE ── */
+.days-track {
+  display:flex; align-items:center; justify-content:center;
+  gap:0; flex-wrap:nowrap; overflow-x:auto; padding-bottom:20px;
+}
+.day-connector {
+  width:48px; height:3px;
+  background:linear-gradient(90deg, var(--lavender-mid), var(--rose));
+  flex-shrink:0;
+}
+.day-node {
+  display:flex; flex-direction:column; align-items:center;
+  cursor:pointer; flex-shrink:0;
+}
+.day-bubble {
+  width:80px; height:80px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column;
+  font-size:1.6rem;
+  font-weight:800;
+  background:rgba(255,255,255,0.8);
+  border:3px solid var(--lavender-mid);
+  box-shadow:0 6px 20px var(--shadow);
+  transition:all 0.3s;
+  position:relative;
+  overflow:visible;
+}
+.day-bubble:hover { transform:scale(1.08); }
+.day-bubble.active { border-color:var(--lavender-deep); background:var(--blush); animation:pulseRing 2s infinite; }
+.day-bubble.completed { border-color:#82c99a; background:linear-gradient(135deg,#d4f0e8,#a8e6c0); }
+.day-bubble.locked { opacity:0.45; cursor:not-allowed; filter:grayscale(0.5); }
+.day-label {
+  font-size:0.72rem; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+  color:var(--text-mid); margin-top:8px;
+}
+.baby-completed { font-size:1.4rem; animation:babyJump 0.6s ease infinite alternate; }
+.baby-womb { font-size:1.4rem; opacity:0.7; }
+@keyframes babyJump {
+  0% { transform:translateY(0); }
+  100% { transform:translateY(-8px); }
+}
+
+/* ── RECORDING PANEL ── */
+.record-panel {
+  background:rgba(255,255,255,0.85); backdrop-filter:blur(14px);
+  border-radius:28px; border:1.5px solid rgba(201,184,232,0.4);
+  box-shadow:0 8px 32px var(--shadow); padding:36px;
+  margin:30px auto; max-width:600px; text-align:center;
+}
+.record-panel h3 { font-size:1.6rem; color:var(--text-dark); margin-bottom:8px; }
+.record-panel .day-sub { color:var(--text-light); font-weight:700; font-size:0.88rem; margin-bottom:28px; }
+
+.mic-btn {
+  width:90px; height:90px; border-radius:50%;
+  background:linear-gradient(135deg,var(--lavender-deep),var(--rose-deep));
+  border:none; cursor:pointer; font-size:2.4rem;
+  box-shadow:0 8px 24px rgba(164,141,207,0.45);
+  transition:all 0.3s; margin-bottom:16px;
+  display:inline-flex; align-items:center; justify-content:center;
+}
+.mic-btn:hover { transform:scale(1.1); }
+.mic-btn.recording { animation:pulseRing 1s infinite; background:linear-gradient(135deg,#e85a7a,#c74466); }
+
+.recording-status {
+  font-size:0.88rem; font-weight:800; letter-spacing:1px;
+  text-transform:uppercase; color:var(--text-mid); margin-bottom:24px; min-height:20px;
+}
+.waveform {
+  display:flex; align-items:center; justify-content:center; gap:4px; height:40px;
+  margin:0 auto 24px; visibility:hidden;
+}
+.waveform.active { visibility:visible; }
+.wave-bar {
+  width:4px; border-radius:10px;
+  background:linear-gradient(to top,var(--lavender-deep),var(--rose-deep));
+  animation:waveAnim 0.8s ease-in-out infinite alternate;
+}
+@keyframes waveAnim {
+  0%  { height:6px; }
+  100%{ height:32px; }
+}
+
+.timer-display {
+  font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:700;
+  color:var(--text-dark); margin-bottom:20px; min-height:40px;
+}
+
+.complete-day-btn {
+  display:none; margin:0 auto; padding:14px 40px;
+}
+.complete-day-btn.show { display:block; }
+
+/* ── Q & A PAGE (day 6) ── */
+#questionPage { display:none; max-width:900px; margin:0 auto; padding:40px 20px; }
+#questionPage.show { display:block; }
+
+.q-header {
+  text-align:center; margin-bottom:36px; position:relative;
+}
+.q-header h2 { font-size:2rem; color:var(--text-dark); }
+.q-header p { color:var(--text-light); font-weight:700; margin-top:6px; }
+
+.doctor-frame {
+  display:flex; gap:36px; align-items:flex-start;
+}
+.doctor-figure {
+  flex-shrink:0; text-align:center;
+  background:rgba(255,255,255,0.7); border-radius:20px;
+  padding:20px 16px; box-shadow:0 6px 20px var(--shadow);
+  border:2px solid rgba(201,184,232,0.3);
+  position:sticky; top:20px;
+}
+.doctor-emoji { font-size:4.5rem; display:block; margin-bottom:8px; animation:float 3s ease-in-out infinite; }
+.doctor-figure p { font-size:0.78rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text-mid); }
+
+.questions-list { flex:1; }
+
+.q-card {
+  background:rgba(255,255,255,0.85); backdrop-filter:blur(10px);
+  border-radius:20px; padding:24px 28px; margin-bottom:20px;
+  box-shadow:0 4px 16px var(--shadow); border:1.5px solid rgba(201,184,232,0.35);
+}
+.q-card .q-number {
+  font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:2px;
+  color:var(--lavender-deep); margin-bottom:8px;
+}
+.q-card .q-text {
+  font-size:1rem; font-weight:800; color:var(--text-dark); margin-bottom:16px; line-height:1.5;
+}
+.options-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.opt-btn {
+  padding:10px 14px; border-radius:12px; border:2px solid rgba(201,184,232,0.5);
+  background:rgba(248,244,255,0.7); font-family:'Nunito',sans-serif;
+  font-size:0.83rem; font-weight:700; color:var(--text-mid);
+  cursor:pointer; transition:all 0.25s; text-align:center;
+}
+.opt-btn:hover { background:var(--blush); border-color:var(--rose-deep); color:var(--text-dark); }
+.opt-btn.selected { background:linear-gradient(135deg,var(--lavender-deep),var(--rose-deep)); color:white; border-color:transparent; }
+
+.q-submit-btn { display:block; margin:30px auto 0; padding:16px 50px; }
+
+/* petals fixed bg */
+#petals { position:fixed; inset:0; pointer-events:none; z-index:0; }
+</style>
 </head>
-
 <body>
+<div id="petals"></div>
 
-<h2>Daily Voice Check</h2>
-
-<div class="days">
-
-<button onclick="startDay(1)">Day 1 🎤</button>
-<button onclick="startDay(2)">Day 2 🎤</button>
-<button onclick="startDay(3)">Day 3 🎤</button>
-<button onclick="startDay(4)">Day 4 🎤</button>
-<button onclick="startDay(5)">Day 5 🎤</button>
-
+<!-- ── WELCOME BALLOON ── -->
+<div id="welcomeScreen">
+  <div class="balloon-wrap">
+    <span class="balloon-emoji">🎈</span>
+    <div class="balloon-string"></div>
+    <div class="welcome-text">Welcome!<br/><span>Let's Begin</span><br/>To Talk</div>
+    <div class="welcome-sub">Your voice matters, mama 💜</div>
+  </div>
 </div>
 
-<h3 id="question"></h3>
+<!-- ── VOICE RECORDING PAGE (Days 1–5) ── -->
+<div id="mainContent">
+  <div class="page-header">
+    <h2>🎙️ Voice Journal</h2>
+    <p>Record your feelings each day — your words heal</p>
+  </div>
 
-<button onclick="recordVoice()">🎤 Record Voice</button>
+  <!-- Girl with mic -->
+  <div class="mic-girl-section">
+    <div class="girl-figure">
+      <!-- SVG girl figure holding mic -->
+      <svg class="girl-svg" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- hair -->
+        <ellipse cx="50" cy="22" rx="20" ry="22" fill="#c8a070"/>
+        <!-- face -->
+        <ellipse cx="50" cy="28" rx="16" ry="18" fill="#f5d5b0"/>
+        <!-- eyes -->
+        <ellipse cx="44" cy="27" rx="2.2" ry="2.5" fill="#3d2b5e"/>
+        <ellipse cx="56" cy="27" rx="2.2" ry="2.5" fill="#3d2b5e"/>
+        <!-- blush -->
+        <ellipse cx="42" cy="32" rx="4" ry="2.5" fill="#f5c6d0" opacity="0.7"/>
+        <ellipse cx="58" cy="32" rx="4" ry="2.5" fill="#f5c6d0" opacity="0.7"/>
+        <!-- smile -->
+        <path d="M44 35 Q50 40 56 35" stroke="#c47050" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- body / dress -->
+        <path d="M30 50 Q28 90 26 115 H74 Q72 90 70 50 Z" fill="#a48dcf"/>
+        <!-- dress details -->
+        <ellipse cx="50" cy="55" rx="18" ry="8" fill="#c9b8e8"/>
+        <!-- neck -->
+        <rect x="45" y="44" width="10" height="8" rx="4" fill="#f5d5b0"/>
+        <!-- left arm holding mic -->
+        <path d="M30 58 Q14 68 18 82" stroke="#f5d5b0" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <!-- mic in hand -->
+        <rect x="10" y="78" width="12" height="18" rx="6" fill="#3d2b5e"/>
+        <ellipse cx="16" cy="78" rx="7" ry="7" fill="#6b5585"/>
+        <!-- right arm -->
+        <path d="M70 58 Q84 64 80 76" stroke="#f5d5b0" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <!-- legs -->
+        <rect x="38" y="110" width="10" height="20" rx="5" fill="#a48dcf"/>
+        <rect x="52" y="110" width="10" height="20" rx="5" fill="#a48dcf"/>
+        <!-- shoes -->
+        <ellipse cx="43" cy="130" rx="8" ry="4" fill="#3d2b5e"/>
+        <ellipse cx="57" cy="130" rx="8" ry="4" fill="#3d2b5e"/>
+      </svg>
+    </div>
+    <!-- Day Timeline -->
+    <div class="days-track" id="daysTrack">
+      <!-- generated by JS -->
+    </div>
+  </div>
 
-<hr>
+  <!-- Recording Panel -->
+  <div class="record-panel" id="recordPanel">
+    <h3 id="recordTitle">Day 1 — Voice Journal</h3>
+    <p class="day-sub" id="recordSub">Speak freely. Share how your day felt, mama.</p>
+    <button class="mic-btn" id="micBtn" onclick="toggleRecord()">🎙️</button>
+    <div class="waveform" id="waveform">
+      <div class="wave-bar" style="animation-delay:0s"></div>
+      <div class="wave-bar" style="animation-delay:0.1s"></div>
+      <div class="wave-bar" style="animation-delay:0.2s"></div>
+      <div class="wave-bar" style="animation-delay:0.3s"></div>
+      <div class="wave-bar" style="animation-delay:0.4s"></div>
+      <div class="wave-bar" style="animation-delay:0.5s"></div>
+      <div class="wave-bar" style="animation-delay:0.6s"></div>
+      <div class="wave-bar" style="animation-delay:0.7s"></div>
+      <div class="wave-bar" style="animation-delay:0.8s"></div>
+    </div>
+    <div class="recording-status" id="recStatus">Tap the mic to start recording</div>
+    <div class="timer-display" id="timerDisplay"></div>
+    <button class="btn-primary complete-day-btn" id="completeDayBtn" onclick="completeDay()">✅ Complete Day <span id="completeDayNum">1</span></button>
+  </div>
+</div>
 
-<h2>Day 6 Questionnaire</h2>
+<!-- ── QUESTIONNAIRE PAGE (Day 6) ── -->
+<div id="questionPage">
+  <div class="q-header">
+    <h2>Day 6 — Reflection Session</h2>
+    <p>Your answers help us understand how you're truly doing 💜</p>
+  </div>
 
-<form id="questionnaire">
+  <div class="doctor-frame">
+    <div class="doctor-figure">
+      <span class="doctor-emoji">👩‍⚕️</span>
+      <p>Your Care<br/>Guide</p>
+      <br/>
+      <div style="font-size:1.4rem">📋</div>
+      <div style="font-size:1.4rem;margin-top:4px">✨</div>
+      <div style="font-size:1.4rem;margin-top:4px">💜</div>
+    </div>
 
-<label>How do you feel emotionally?</label>
-<textarea id="q1"></textarea>
+    <div class="questions-list" id="questionsList">
+      <!-- generated by JS -->
+    </div>
+  </div>
 
-<label>Are you feeling stressed or overwhelmed?</label>
-<textarea id="q2"></textarea>
+  <button class="btn-primary q-submit-btn" onclick="submitQuestionnaire()">View My Results →</button>
+</div>
 
-<label>How is your sleep?</label>
-<textarea id="q3"></textarea>
+<script>
+// Petals
+const petalColors = ['#e0c8f5','#f5c6d0','#c8e0f5','#f5e0c8'];
+const petalContainer = document.getElementById('petals');
+for (let i = 0; i < 14; i++) {
+  const p = document.createElement('div'); p.className = 'petal';
+  p.style.cssText = `left:${Math.random()*100}vw;background:${petalColors[Math.floor(Math.random()*petalColors.length)]};width:${8+Math.random()*8}px;height:${12+Math.random()*10}px;animation-duration:${7+Math.random()*9}s;animation-delay:${Math.random()*8}s;border-radius:${Math.random()>0.5?'50% 0 50% 0':'0 50% 0 50%'};`;
+  petalContainer.appendChild(p);
+}
 
-<label>Do you feel supported by family?</label>
-<textarea id="q4"></textarea>
+// State
+let completedDays = JSON.parse(localStorage.getItem('completed_days') || '[]');
+let currentDay = completedDays.length + 1;
+if (currentDay > 5) currentDay = 5;
+let isRecording = false, timerInterval = null, seconds = 0;
+let mediaRecorder = null, recordedChunks = [];
 
-<label>How is your baby's health?</label>
-<textarea id="q5"></textarea>
+// Welcome animation
+setTimeout(() => {
+  document.getElementById('welcomeScreen').classList.add('hide');
+  setTimeout(() => {
+    document.getElementById('welcomeScreen').style.display = 'none';
+    if (completedDays.length >= 5) {
+      showQuestionnaire();
+    } else {
+      document.getElementById('mainContent').classList.add('show');
+      renderDays();
+      updateRecordPanel();
+    }
+  }, 900);
+}, 3400);
 
-<button type="submit">Submit Screening</button>
+// Render day nodes
+function renderDays() {
+  const track = document.getElementById('daysTrack');
+  track.innerHTML = '';
+  for (let d = 1; d <= 5; d++) {
+    if (d > 1) {
+      const conn = document.createElement('div');
+      conn.className = 'day-connector';
+      track.appendChild(conn);
+    }
+    const node = document.createElement('div');
+    node.className = 'day-node';
+    const isDone = completedDays.includes(d);
+    const isActive = d === currentDay && !isDone;
+    const isLocked = d > currentDay && !isDone;
 
-</form>
+    let bubbleClass = 'day-bubble';
+    if (isDone) bubbleClass += ' completed';
+    else if (isActive) bubbleClass += ' active';
+    else if (isLocked) bubbleClass += ' locked';
 
-<script src="script.js"></script>
+    const icon = isDone
+      ? `<span class="baby-completed">🎉</span><span style="font-size:1.2rem">👶</span>`
+      : isLocked
+        ? `<span class="baby-womb">🥚</span>`
+        : `<span style="font-size:1.6rem">🎙️</span>`;
 
+    node.innerHTML = `
+      <div class="${bubbleClass}" onclick="${!isLocked?`selectDay(${d})`:''}">
+        ${icon}
+      </div>
+      <div class="day-label">Day ${d}</div>
+    `;
+    track.appendChild(node);
+  }
+}
+
+function selectDay(d) {
+  if (d > currentDay) return;
+  currentDay = d;
+  updateRecordPanel();
+}
+
+function updateRecordPanel() {
+  document.getElementById('recordTitle').textContent = `Day ${currentDay} — Voice Journal`;
+  document.getElementById('completeDayNum').textContent = currentDay;
+  const isDone = completedDays.includes(currentDay);
+  const btn = document.getElementById('completeDayBtn');
+  btn.classList.toggle('show', isDone || isRecording === false);
+  if (isDone) {
+    document.getElementById('recStatus').textContent = `Day ${currentDay} already recorded ✅`;
+    btn.textContent = currentDay < 5 ? `Go to Day ${currentDay+1} →` : '🌸 Done! See Questionnaire';
+    btn.onclick = isDone && currentDay < 5 ? ()=>{currentDay++;updateRecordPanel();renderDays();} : ()=>showQuestionnaire();
+  }
+}
+
+function toggleRecord() {
+  if (!isRecording) startRecording();
+  else stopRecording();
+}
+
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRecorder = new MediaRecorder(stream);
+    recordedChunks = [];
+    mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+    mediaRecorder.start();
+  } catch {
+    // fallback: simulate
+  }
+  isRecording = true;
+  seconds = 0;
+  document.getElementById('micBtn').classList.add('recording');
+  document.getElementById('micBtn').textContent = '⏹️';
+  document.getElementById('waveform').classList.add('active');
+  document.getElementById('recStatus').textContent = 'Recording... speak your heart out 💜';
+  timerInterval = setInterval(()=>{
+    seconds++;
+    const m = String(Math.floor(seconds/60)).padStart(2,'0');
+    const s = String(seconds%60).padStart(2,'0');
+    document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function stopRecording() {
+  isRecording = false;
+  clearInterval(timerInterval);
+  if (mediaRecorder) { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t=>t.stop()); }
+  document.getElementById('micBtn').classList.remove('recording');
+  document.getElementById('micBtn').textContent = '🎙️';
+  document.getElementById('waveform').classList.remove('active');
+  document.getElementById('recStatus').textContent = `Recorded ${document.getElementById('timerDisplay').textContent} ✅`;
+  document.getElementById('completeDayBtn').classList.add('show');
+  // save audio blob
+  if (mediaRecorder) {
+    mediaRecorder.onstop = ()=>{
+      const blob = new Blob(recordedChunks, {type:'audio/webm'});
+      const url = URL.createObjectURL(blob);
+      const recordings = JSON.parse(localStorage.getItem('voice_recordings')||'{}');
+      recordings[`day${currentDay}`] = { duration: document.getElementById('timerDisplay').textContent };
+      localStorage.setItem('voice_recordings', JSON.stringify(recordings));
+      localStorage.setItem(`voice_url_day${currentDay}`, url);
+    };
+  } else {
+    const recordings = JSON.parse(localStorage.getItem('voice_recordings')||'{}');
+    recordings[`day${currentDay}`] = { duration: document.getElementById('timerDisplay').textContent };
+    localStorage.setItem('voice_recordings', JSON.stringify(recordings));
+  }
+}
+
+function completeDay() {
+  if (!completedDays.includes(currentDay)) {
+    completedDays.push(currentDay);
+    localStorage.setItem('completed_days', JSON.stringify(completedDays));
+  }
+  if (completedDays.length >= 5) {
+    showQuestionnaire();
+    return;
+  }
+  currentDay = completedDays.length + 1;
+  renderDays();
+  updateRecordPanel();
+  document.getElementById('timerDisplay').textContent = '';
+  document.getElementById('recStatus').textContent = 'Tap the mic to start recording';
+  document.getElementById('completeDayBtn').classList.remove('show');
+}
+
+function showQuestionnaire() {
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('questionPage').classList.add('show');
+  renderQuestions();
+}
+
+// Questions data
+const questions = [
+  {
+    q: "1. Did you find a moment today that made you feel calm or happy?",
+    opts: ["Yes, a few beautiful moments", "Just one small moment", "Barely, but maybe one", "Not really today"]
+  },
+  {
+    q: "2. How supported did you feel by the people around you today?",
+    opts: ["Very supported — loved it", "Somewhat supported", "A little, not enough", "Not supported at all"]
+  },
+  {
+    q: "3. How comfortable did you feel sharing your feelings today?",
+    opts: ["Very comfortable, I opened up", "Somewhat comfortable", "A bit guarded", "I kept it all inside"]
+  },
+  {
+    q: "4. Did you get time to rest or take care of yourself today?",
+    opts: ["Yes, I made time for me", "A little bit", "Very little time", "No self-care today"]
+  },
+  {
+    q: "5. How connected did you feel with your baby today?",
+    opts: ["Deeply connected 💜", "Mostly connected", "A little distant", "Struggled to connect"]
+  }
+];
+
+let answers = {};
+
+function renderQuestions() {
+  const list = document.getElementById('questionsList');
+  list.innerHTML = '';
+  questions.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML = `
+      <div class="q-number">Question ${qi+1} of ${questions.length}</div>
+      <div class="q-text">${item.q}</div>
+      <div class="options-grid" id="opts-${qi}">
+        ${item.opts.map((opt, oi) => `
+          <button class="opt-btn" onclick="selectAnswer(${qi},${oi},this)">${opt}</button>
+        `).join('')}
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function selectAnswer(qi, oi, el) {
+  document.querySelectorAll(`#opts-${qi} .opt-btn`).forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  answers[qi] = oi; // 0=best, 3=worst → score: 3-oi → 3,2,1,0
+}
+
+function submitQuestionnaire() {
+  if (Object.keys(answers).length < questions.length) {
+    alert('Please answer all 5 questions 💜');
+    return;
+  }
+  // Score: oi 0→3pts, 1→2pts, 2→1pts, 3→0pts
+  const total = Object.values(answers).reduce((sum, oi) => sum + (3-oi), 0);
+  localStorage.setItem('q_score', total);
+  localStorage.setItem('q_answers', JSON.stringify(answers));
+  window.location.href = 'result.html';
+}
+</script>
 </body>
 </html>
