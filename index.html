@@ -1,40 +1,281 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>SMART PPD Platform</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="style.css">
-</head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MomCare — Login</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+  body { overflow: hidden; }
 
+  /* ── FULL LAYOUT ── */
+  .page-wrap {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    background: linear-gradient(135deg, #f7f0ff 0%, #fde8f0 50%, #e8f4fd 100%);
+  }
+
+  /* ── LEFT — faded illustration panel ── */
+  .left-panel {
+    flex: 1.1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .left-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=800&q=80') center/cover no-repeat;
+    opacity: 0.22;
+    filter: saturate(0.6) blur(1px);
+  }
+  .left-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(232,224,245,0.1) 0%, rgba(232,224,245,0.85) 100%);
+  }
+  .left-brand {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 40px;
+  }
+  .left-brand .logo-icon {
+    font-size: 5rem;
+    margin-bottom: 16px;
+    animation: float 3s ease-in-out infinite;
+    display: block;
+  }
+  .left-brand h1 {
+    font-size: 2.8rem;
+    color: var(--text-dark);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .left-brand h1 span { color: var(--lavender-deep); }
+  .left-brand p {
+    color: var(--text-mid);
+    font-size: 1rem;
+    font-weight: 600;
+    max-width: 320px;
+    line-height: 1.7;
+  }
+  .quote-tag {
+    display: inline-block;
+    margin-top: 24px;
+    background: rgba(255,255,255,0.7);
+    border-left: 4px solid var(--rose-deep);
+    padding: 10px 20px;
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    color: var(--text-mid);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* ── RIGHT — login card ── */
+  .right-panel {
+    flex: 0.9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    position: relative;
+    z-index: 2;
+  }
+  .login-card {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(18px);
+    border-radius: 32px;
+    box-shadow: 0 16px 48px rgba(164,141,207,0.28);
+    border: 1.5px solid rgba(201,184,232,0.5);
+    padding: 48px 44px;
+    width: 100%;
+    max-width: 430px;
+  }
+  .login-card .card-head {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .login-card .card-head .heart-icon {
+    font-size: 2.4rem;
+    display: block;
+    margin-bottom: 8px;
+    animation: pulseRing 2s infinite;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    background: var(--blush);
+    line-height: 56px;
+    margin: 0 auto 12px;
+  }
+  .login-card .card-head h2 {
+    font-size: 1.9rem;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+  .login-card .card-head p {
+    color: var(--text-light);
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  /* form */
+  .form-group {
+    margin-bottom: 22px;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 800;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-mid);
+    margin-bottom: 8px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid rgba(201,184,232,0.5);
+    border-radius: 14px;
+    background: rgba(248,244,255,0.8);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    outline: none;
+    transition: all 0.3s;
+  }
+  .form-group input:focus {
+    border-color: var(--lavender-deep);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(164,141,207,0.12);
+  }
+  .form-group input::placeholder { color: var(--text-light); font-weight: 600; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    margin-top: 8px;
+    font-size: 1rem;
+    letter-spacing: 2px;
+  }
+
+  .privacy-note {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    font-weight: 600;
+  }
+  .privacy-note span { color: var(--rose-deep); }
+
+  /* decorative circles */
+  .deco-circle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.18;
+  }
+  .deco-circle.c1 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, var(--lavender-deep), transparent);
+    top: -80px; right: -80px;
+  }
+  .deco-circle.c2 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, var(--rose-deep), transparent);
+    bottom: -60px; left: -60px;
+  }
+</style>
+</head>
 <body>
 
-<header>
-<h1>SMART PPD EARLY SCREENING PLATFORM</h1>
-</header>
+<!-- floating petals -->
+<div id="petals"></div>
 
-<div class="login-container">
+<div class="page-wrap">
 
-<h2>Welcome Mother</h2>
-<p>Please enter your details</p>
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="left-brand">
+      <span class="logo-icon">🌸</span>
+      <h1>Mom<span>Care</span><br/>Companion</h1>
+      <p>A gentle space to support your emotional wellbeing in the beautiful journey of new motherhood.</p>
+      <div class="quote-tag">"You are doing better than you think, mama."</div>
+    </div>
+  </div>
 
-<form id="loginForm">
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="login-card" style="position:relative;overflow:hidden;">
+      <div class="deco-circle c1"></div>
+      <div class="deco-circle c2"></div>
 
-<label>Enter Your Name</label>
-<input type="text" id="name" required>
+      <div class="card-head">
+        <div class="heart-icon">💗</div>
+        <h2>Welcome, Mama</h2>
+        <p>Please share a few details to get started</p>
+      </div>
 
-<label>Date of Birth</label>
-<input type="date" id="dob" required>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Mother's Full Name</label>
+          <input type="text" id="motherName" placeholder="e.g. Priya Sharma" required/>
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" id="dob" required/>
+        </div>
+        <div class="form-group">
+          <label>Weeks After Delivery</label>
+          <input type="number" id="weeksAfter" placeholder="e.g. 3" min="1" max="52" required/>
+        </div>
+        <button type="submit" class="btn-primary submit-btn">Begin My Journey →</button>
+      </form>
 
-<label>How many weeks after delivery?</label>
-<input type="number" id="weeks" min="1" max="52" required>
-
-<button type="submit">Continue</button>
-
-</form>
+      <div class="privacy-note">🔒 Your data is <span>private & secure</span>. Only you can see it.</div>
+    </div>
+  </div>
 
 </div>
 
-<script src="script.js"></script>
+<script>
+// Petals
+const petalColors = ['#e0c8f5','#f5c6d0','#c8e0f5','#f5e0c8'];
+const container = document.getElementById('petals');
+for (let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  p.className = 'petal';
+  p.style.cssText = `
+    left:${Math.random()*100}vw;
+    background:${petalColors[Math.floor(Math.random()*petalColors.length)]};
+    width:${8+Math.random()*8}px;
+    height:${12+Math.random()*10}px;
+    animation-duration:${6+Math.random()*8}s;
+    animation-delay:${Math.random()*6}s;
+    border-radius:${Math.random()>0.5?'50% 0 50% 0':'0 50% 0 50%'};
+  `;
+  container.appendChild(p);
+}
 
+function handleLogin(e) {
+  e.preventDefault();
+  const name = document.getElementById('motherName').value.trim();
+  const dob = document.getElementById('dob').value;
+  const weeks = document.getElementById('weeksAfter').value;
+  if (!name || !dob || !weeks) return;
+  localStorage.setItem('mom_name', name);
+  localStorage.setItem('mom_dob', dob);
+  localStorage.setItem('mom_weeks', weeks);
+  window.location.href = 'screening.html';
+}
+</script>
 </body>
 </html>
