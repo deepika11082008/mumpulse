@@ -149,14 +149,14 @@ document.getElementById('mamaNameTag').textContent = `Results for ${name}`;
 document.getElementById('scoreBadge').textContent = `Score: ${score} / 15`;
 
 let riskLevel, icon, desc, recs;
-if (score >= 11) {
+if (score < 6) {
   riskLevel='low'; icon='💚'; desc='You\'re showing strong emotional resilience. Your responses reflect moments of calm, connection, and care. Keep nurturing yourself, mama — you\'re doing beautifully.';
   recs = [
     {icon:'🧘‍♀️', text:'Continue your daily mindfulness routine — even 5 minutes of deep breathing makes a difference.'},
     {icon:'🌸', text:'Share your positive experiences with loved ones — connection amplifies joy.'},
     {icon:'📖', text:'Consider journaling your happy moments to revisit them on harder days.'}
   ];
-} else if (score >= 6) {
+} else if (score >= 6 && score < 11) {
   riskLevel='moderate'; icon='💛'; desc='You\'re doing okay, but some areas may need extra attention. It\'s okay to ask for more support — you deserve care too.';
   recs = [
     {icon:'💬', text:'Consider speaking with a trusted friend, family member, or counsellor about your feelings.'},
