@@ -1,66 +1,38 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-<title>SMART PPD Screening Platform</title>
-
+<title>SMART PPD Platform</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<link rel="stylesheet" href="css/style.css">
-
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <header>
-
 <h1>SMART PPD EARLY SCREENING PLATFORM</h1>
-
-<nav>
-<a href="index.html">Home</a>
-<a href="screening.html">Screening</a>
-<a href="dashboard.html">Dashboard</a>
-<a href="chatbot.html">Chatbot</a>
-</nav>
-
 </header>
-
-<section class="hero">
-
-<h2>Monitor Emotional Health After Childbirth</h2>
-
-<p>
-This platform helps detect early signs of postpartum depression using AI analysis.
-</p>
-
-</section>
 
 <div class="login-container">
 
-<h2>SMART PPD Login</h2>
-
+<h2>Welcome Mother</h2>
 <p>Please enter your details</p>
 
 <form id="loginForm">
 
-<label>Name</label>
+<label>Enter Your Name</label>
 <input type="text" id="name" required>
 
 <label>Date of Birth</label>
 <input type="date" id="dob" required>
+
+<label>How many weeks after delivery?</label>
+<input type="number" id="weeks" min="1" max="52" required>
 
 <button type="submit">Continue</button>
 
 </form>
 
 </div>
-
-<footer>
-
-<p>© 2026 SMART PPD Platform</p>
-
-</footer>
 
 <script src="script.js"></script>
 
