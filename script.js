@@ -1,133 +1,71 @@
-// LOGIN PAGE
-document.getElementById("loginForm")?.addEventListener("submit", function(e){
+// ── MomCare Shared Script ──
 
-e.preventDefault();
+// Generate floating petals background
+function generatePetals(containerId = 'petals', count = 16) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const colors = ['#e0c8f5','#f5c6d0','#c8e0f5','#f5e0c8','#d4f0e8'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.cssText = `
+      left: ${Math.random() * 100}vw;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      width: ${8 + Math.random() * 8}px;
+      height: ${12 + Math.random() * 10}px;
+      animation-duration: ${6 + Math.random() * 8}s;
+      animation-delay: ${Math.random() * 7}s;
+      border-radius: ${Math.random() > 0.5 ? '50% 0 50% 0' : '0 50% 0 50%'};
+    `;
+    container.appendChild(p);
+  }
+}
 
-let name = document.getElementById("name").value;
-let weeks = document.getElementById("weeks").value;
+// Save to localStorage with prefix
+function momStore(key, value) {
+  localStorage.setItem(`momcare_${key}`, JSON.stringify(value));
+}
+function momLoad(key, fallback = null) {
+  const val = localStorage.getItem(`momcare_${key}`);
+  return val ? JSON.parse(val) : fallback;
+}
 
-localStorage.setItem("name", name);
-localStorage.setItem("weeks", weeks);
+// Get risk level from score (0–15)
+function getRiskLevel(score) {
+  if (score >= 11) return 'low';
+  if (score >= 6) return 'moderate';
+  return 'high';
+}
 
-window.location = "screening.html";
+// Format seconds to mm:ss
+function formatTime(seconds) {
+  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
 
-});
+// Get greeting based on time
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good Morning';
+  if (h < 17) return 'Good Afternoon';
+  return 'Good Evening';
+}
 
-
-// VOICE QUESTIONS
-let questions = [
-"What is your name?",
-"How is your life going?",
-"How is your baby health?",
-"How are you feeling emotionally today?",
-"Are you feeling stressed or tired?"
+// Daily affirmations pool
+const AFFIRMATIONS = [
+  '"You are enough. You have always been enough."',
+  '"Rest is not a reward — it is part of healing."',
+  '"Every moment of doubt you overcome makes you stronger."',
+  '"Your baby chose you. And they chose perfectly."',
+  '"Asking for help is courage, not weakness."',
+  '"You are growing into the mother your child needs."',
+  '"Your feelings are valid. All of them."',
+  '"Small steps are still steps forward, mama."',
+  '"You don\'t have to do it all. You just have to be there."',
+  '"Love doesn\'t have to be perfect to be real."',
 ];
 
-function startDay(day){
-
-let q = questions[Math.floor(Math.random()*questions.length)];
-
-let questionElement = document.getElementById("question");
-
-if(questionElement){
-questionElement.innerText = "Day " + day + " Question: " + q;
-}
-
-}
-
-
-// VOICE RECORDING
-function recordVoice(){
-
-alert("Voice recording started (demo)");
-
-}
-
-
-// QUESTIONNAIRE SUBMIT
-document.getElementById("questionnaire")?.addEventListener("submit", function(e){
-
-e.preventDefault();
-
-let text =
-(document.getElementById("q1")?.value || "") +
-(document.getElementById("q2")?.value || "");
-
-let risk = "Low";
-
-if(text.toLowerCase().includes("sad") || text.toLowerCase().includes("tired"))
-risk = "Moderate";
-
-if(text.toLowerCase().includes("hopeless") || text.toLowerCase().includes("depressed"))
-risk = "High";
-
-localStorage.setItem("risk", risk);
-
-window.location = "result.html";
-
-});
-
-
-// RESULT PAGE
-if(document.getElementById("riskLevel")){
-
-let risk = localStorage.getItem("risk") || "Low";
-
-document.getElementById("riskLevel").innerText = "Risk Level: " + risk;
-
-let msg = "You are emotionally stable.";
-
-if(risk === "Moderate")
-msg = "You may be experiencing emotional stress.";
-
-if(risk === "High")
-msg = "Please consult a healthcare professional.";
-
-document.getElementById("message").innerText = msg;
-
-}
-
-
-// DASHBOARD
-if(document.getElementById("dName")){
-
-document.getElementById("dName").innerText = localStorage.getItem("name");
-document.getElementById("dWeeks").innerText = localStorage.getItem("weeks");
-document.getElementById("dRisk").innerText = localStorage.getItem("risk");
-
-}
-
-
-// CHATBOT
-function sendMessage(){
-
-let msgInput = document.getElementById("message");
-let box = document.getElementById("chatbox");
-
-if(!msgInput || !box) return;
-
-let msg = msgInput.value;
-
-box.innerHTML += "<p><b>You:</b> " + msg + "</p>";
-
-let reply = "I'm here to support you.";
-
-if(msg.toLowerCase().includes("sad"))
-reply = "It's okay to feel sad. Try talking to someone you trust.";
-
-if(msg.toLowerCase().includes("stress"))
-reply = "Take some rest and breathing exercises.";
-
-box.innerHTML += "<p><b>Bot:</b> " + reply + "</p>";
-
-msgInput.value = "";
-
-}
-
-
-// VOICE CHAT
-function voiceChat(){
-
-alert("Voice chatbot activated (demo)");
-
+function getRandomAffirmation() {
+  return AFFIRMATIONS[Math.floor(Math.random() * AFFIRMATIONS.length)];
 }
