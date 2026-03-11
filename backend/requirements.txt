@@ -4,3 +4,22 @@ flask-sqlalchemy==3.1.1
 flask-jwt-extended==4.6.0
 bcrypt==4.1.3
 python-dotenv==1.0.1
+# Flask
+flask==3.0.0
+flask-cors==4.0.0
+
+# NLP
+transformers==4.38.0
+torch==2.2.0
+scipy==1.12.0
+
+# Voice input
+openai-whisper==20231117
+librosa==0.10.1
+soundfile==0.12.1
+
+# Voice output (TTS)
+requests==2.31.0
+
+# Firebase
+firebase-admin==6.4.0
